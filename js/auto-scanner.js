@@ -5,11 +5,21 @@
 
 // Known streaming sites to scan (add more as needed)
 const STREAM_SOURCES = [
+  // Soccer sites
   'https://sportsbay.org/',
   'https://720pstream.tv/',
   'https://www.totalsportek.com/',
   'https://www.espn.com/watch/',
   'https://www.fcstreams.xyz/',
+  // Cricket sites
+  'https://www.cricfree.live/',
+  'https://www.cricbuzz.com/',
+  'https://www.hotstar.com/',
+  'https://www.sonyliv.com/',
+  // Multi-sport
+  'https://www.stream2watch.ws/',
+  'https://www.batmanstream.com/',
+  'https://www.feed2all.eu/',
   // Add more sites here
 ];
 
