@@ -14,13 +14,8 @@ async function loadHome() {
   if (cricketGrid)  cricketGrid.innerHTML = buildSkeletonCards(4);
 
   try {
-    const now        = new Date();
-    const startOfDay = new Date(now); startOfDay.setHours(0,0,0,0);
-    const endOfDay   = new Date(now); endOfDay.setHours(23,59,59,999);
-
-    // Fetch all matches for today + upcoming
+    // Fetch all matches (no order to avoid index issues)
     const snap = await db.collection('matches')
-      .orderBy('startTime', 'asc')
       .limit(60)
       .get();
 
