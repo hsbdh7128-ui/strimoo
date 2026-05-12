@@ -23,14 +23,16 @@ async function loadMatch() {
     renderMatchHeader();
     document.title = `${currentMatch.homeTeam} vs ${currentMatch.awayTeam} — Strimo`;
 
-    // Load streams
+    // Load streams (simple query without order to avoid index issues)
     const streamsSnap = await db.collection('matches').doc(matchId)
       .collection('streams')
-      .where('isActive', '==', true)
-      .orderBy('order', 'asc')
       .get();
 
-    allStreams = streamsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+    allStreams = streamsSnap.docs
+      .map(d => ({ id: d.id, ...d.data() }))
+      .filter(s => s.isActive !== false); // Filter out inactive streams
+
+    console.log('Streams loaded:', allStreams);
     renderStreamSelector();
     loadRelatedMatches();
 
