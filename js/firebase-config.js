@@ -6,13 +6,15 @@
 
 // STEP 1: Replace these values with your Firebase project config
 // Go to: Firebase Console → Project Settings → Your apps → SDK setup
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey:            "YOUR_API_KEY",
-  authDomain:        "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId:         "YOUR_PROJECT_ID",
-  storageBucket:     "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId:             "YOUR_APP_ID"
+  apiKey: "AIzaSyAzLa7Zu56OkESjZqiF9hIp6PZsuLXV7Ig",
+  authDomain: "strimo-82908.firebaseapp.com",
+  projectId: "strimo-82908",
+  storageBucket: "strimo-82908.firebasestorage.app",
+  messagingSenderId: "159838521465",
+  appId: "1:159838521465:web:97a6b3ccae7168f497eca8",
+  measurementId: "G-TWMWC10D30"
 };
 
 // ============================================================
@@ -23,7 +25,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 
 // Export commonly used services
-const db   = firebase.firestore();
+const db = firebase.firestore();
 const auth = firebase.auth();
 
 // ============================================================
