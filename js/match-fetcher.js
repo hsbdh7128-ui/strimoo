@@ -1,192 +1,104 @@
 // ============================================================
-// STRIMO — Match Scheduler (Auto-fetch matches)
-// Uses multiple APIs for better coverage
+// STRIMO — Match Fetcher (uses Cloudflare Worker as proxy)
+// Bypasses CORS by routing through worker
 // ============================================================
 
-const SPORTS_API_URL = 'https://www.thesportsdb.com/api/v1/json/3';
+// Your Cloudflare Worker URL
+const WORKER_URL = 'https://strimo-m3u8-detector.hsbdh7128.workers.dev';
 
-// Popular soccer league IDs
-const SOCCER_LEAGUES = [
-  { id: '4500', name: 'Premier League' },
-  { id: '4480', name: 'La Liga' },
-  { id: '4459', name: 'Serie A' },
-  { id: '4538', name: 'Bundesliga' },
-  { id: '4504', name: 'Ligue 1' },
-  { id: '4544', name: 'Champions League' },
-  { id: '4550', name: 'Europa League' },
-  { id: '4512', name: 'MLS' },
-  { id: '4740', name: 'EFL Championship' },
-  { id: '4531', name: 'FA Cup' },
-  { id: '4556', name: 'Carabao Cup' },
-];
+// Fetch matches via worker (no CORS issues)
+async function fetchMatchesViaWorker(sport = 'all', type = 'today') {
+  const url = `${WORKER_URL}?action=sports&sport=${sport}&type=${type}`;
 
-// Cricket league IDs
-const CRICKET_LEAGUES = [
-  { id: '4574', name: 'IPL' },
-  { id: '4576', name: 'Big Bash League' },
-  { id: '4554', name: 'World Cup' },
-  { id: '4562', name: 'T20 World Cup' },
-];
-
-// Helper: format date as YYYYMMDD
-function getDateStr(date = new Date()) {
-  const d = new Date(date);
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${year}${month}${day}`;
-}
-
-// Fetch matches by league (next 15 days)
-async function fetchMatchesByLeague(leagueId) {
   try {
-    const url = `${SPORTS_API_URL}/eventsnextleague.php?id=${leagueId}`;
     const res = await fetch(url);
+    const data = await res.json();
 
-    if (!res.ok) {
-      console.warn(`Failed to fetch league ${leagueId}: ${res.status}`);
+    if (data.success) {
+      return data.matches || [];
+    } else {
+      console.error('Worker error:', data.error);
       return [];
     }
-
-    const data = await res.json();
-    return data.events || [];
   } catch (err) {
-    console.warn(`Error fetching league ${leagueId}:`, err);
+    console.error('Failed to fetch via worker:', err);
     return [];
   }
 }
 
-// Fetch from eventsday endpoint
-async function fetchByDate(dateStr) {
-  try {
-    const url = `${SPORTS_API_URL}/eventsday.php?d=${dateStr}`;
-    const res = await fetch(url);
-    const data = await res.json();
-    return data.events || [];
-  } catch (err) {
-    console.warn(`Error fetching by date ${dateStr}:`, err);
-    return [];
-  }
-}
-
-// Fetch soccer matches from multiple sources
+// Fetch soccer matches
 async function fetchTodaySoccer() {
-  const seenMatches = new Set();
-  const allMatches = [];
+  const matches = await fetchMatchesViaWorker('soccer', 'today');
 
-  console.log('Fetching soccer matches...');
-
-  // Method 1: Fetch from top leagues
-  const leaguePromises = SOCCER_LEAGUES.map(async (league) => {
-    const events = await fetchMatchesByLeague(league.id);
-    console.log(`League ${league.name}: ${events.length} events`);
-    return events;
-  });
-
-  const leagueResults = await Promise.all(leaguePromises);
-
-  for (const events of leagueResults) {
-    for (const event of events) {
-      const key = `${event.strHomeTeam}-${event.strAwayTeam}-${event.dateEvent}`;
-      if (!seenMatches.has(key)) {
-        seenMatches.add(key);
-        allMatches.push(mapToMatch(event, 'soccer'));
-      }
-    }
-  }
-
-  // Method 2: Try eventsday for today's popular leagues
-  const today = getDateStr();
-  const leaguesToTry = ['English Premier League', 'La Liga', 'Serie A', 'Bundesliga'];
-
-  for (const leagueName of leaguesToTry) {
-    const events = await fetchByDate(today);
-    const filtered = events.filter(e =>
-      e.strLeague && e.strLeague.toLowerCase().includes(leagueName.toLowerCase().split(' ')[0])
-    );
-
-    for (const event of filtered) {
-      const key = `${event.strHomeTeam}-${event.strAwayTeam}-${event.dateEvent}`;
-      if (!seenMatches.has(key)) {
-        seenMatches.add(key);
-        allMatches.push(mapToMatch(event, 'soccer'));
-      }
-    }
-  }
-
-  // Sort by time
-  allMatches.sort((a, b) => (a.startTime?.getTime() || 0) - (b.startTime?.getTime() || 0));
-
-  console.log(`Total soccer matches found: ${allMatches.length}`);
-  return allMatches;
+  return matches
+    .filter(m => m.sport === 'soccer')
+    .map(m => ({
+      sport: 'soccer',
+      homeTeam: m.homeTeam || 'Home',
+      awayTeam: m.awayTeam || 'Away',
+      league: m.league || 'Unknown League',
+      startTime: m.startTime ? new Date(m.startTime) : new Date(),
+      status: m.status || 'upcoming',
+      thumb: m.thumb || null,
+      leagueBadge: m.leagueBadge || null
+    }));
 }
 
 // Fetch cricket matches
 async function fetchTodayCricket() {
-  const seenMatches = new Set();
-  const allMatches = [];
+  const matches = await fetchMatchesViaWorker('cricket', 'today');
 
-  console.log('Fetching cricket matches...');
-
-  // Fetch from cricket leagues
-  const leaguePromises = CRICKET_LEAGUES.map(async (league) => {
-    const events = await fetchMatchesByLeague(league.id);
-    console.log(`Cricket League ${league.name}: ${events.length} events`);
-    return events;
-  });
-
-  const leagueResults = await Promise.all(leaguePromises);
-
-  for (const events of leagueResults) {
-    for (const event of events) {
-      const key = `${event.strHomeTeam}-${event.strAwayTeam}-${event.dateEvent}`;
-      if (!seenMatches.has(key)) {
-        seenMatches.add(key);
-        allMatches.push(mapToMatch(event, 'cricket'));
-      }
-    }
-  }
-
-  console.log(`Total cricket matches found: ${allMatches.length}`);
-  return allMatches;
+  return matches
+    .filter(m => m.sport === 'cricket')
+    .map(m => ({
+      sport: 'cricket',
+      homeTeam: m.homeTeam || 'Home',
+      awayTeam: m.awayTeam || 'Away',
+      league: m.league || 'Unknown League',
+      startTime: m.startTime ? new Date(m.startTime) : new Date(),
+      status: m.status || 'upcoming',
+      thumb: m.thumb || null,
+      leagueBadge: m.leagueBadge || null
+    }));
 }
 
-// Map API event to our format
-function mapToMatch(event, sport) {
-  const status = getMatchStatus(event.strStatus);
-
-  return {
-    sport,
-    homeTeam: event.strHomeTeam || 'Home',
-    awayTeam: event.strAwayTeam || 'Away',
-    league: event.strLeague || 'Unknown',
-    startTime: event.strTimestamp ? new Date(event.strTimestamp) : new Date(event.dateEvent + ' ' + (event.strTime || '00:00')),
-    status,
-    thumb: event.strThumb || null,
-    leagueBadge: event.strLeagueBadge || null
-  };
-}
-
-// Determine status
-function getMatchStatus(statusStr) {
-  if (!statusStr) return 'upcoming';
-  const s = statusStr.toLowerCase();
-  if (s.includes('live') || s.includes('in progress') || s.includes('half time')) return 'live';
-  if (s.includes('finished') || s.includes('completed')) return 'completed';
-  return 'upcoming';
-}
-
-// Main fetch function
+// Fetch both
 async function fetchTodayMatches() {
-  const [soccer, cricket] = await Promise.all([
-    fetchTodaySoccer(),
-    fetchTodayCricket()
-  ]);
+  const matches = await fetchMatchesViaWorker('all', 'today');
+
+  const soccer = matches.filter(m => m.sport === 'soccer').map(m => ({
+    sport: 'soccer',
+    homeTeam: m.homeTeam || 'Home',
+    awayTeam: m.awayTeam || 'Away',
+    league: m.league || 'Unknown League',
+    startTime: m.startTime ? new Date(m.startTime) : new Date(),
+    status: m.status || 'upcoming',
+    thumb: m.thumb || null,
+    leagueBadge: m.leagueBadge || null
+  }));
+
+  const cricket = matches.filter(m => m.sport === 'cricket').map(m => ({
+    sport: 'cricket',
+    homeTeam: m.homeTeam || 'Home',
+    awayTeam: m.awayTeam || 'Away',
+    league: m.league || 'Unknown League',
+    startTime: m.startTime ? new Date(m.startTime) : new Date(),
+    status: m.status || 'upcoming',
+    thumb: m.thumb || null,
+    leagueBadge: m.leagueBadge || null
+  }));
 
   return { soccer, cricket, all: [...soccer, ...cricket] };
+}
+
+// Legacy compatibility
+async function fetchTodayMatchesLegacy(sport = 'soccer') {
+  if (sport === 'cricket') return fetchTodayCricket();
+  return fetchTodaySoccer();
 }
 
 // Export
 window.fetchTodaySoccer = fetchTodaySoccer;
 window.fetchTodayCricket = fetchTodayCricket;
 window.fetchTodayMatches = fetchTodayMatches;
+window.fetchTodayMatchesLegacy = fetchTodayMatchesLegacy;

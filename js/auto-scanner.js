@@ -1,9 +1,8 @@
 // ============================================================
-// STRIMO — Auto Stream Scanner
-// Scans known streaming sites for free m3u8 links
+// STRIMO — Auto Stream Scanner (m3u8 + iframes + embeds)
+// Scans sites for all types of stream links
 // ============================================================
 
-// Known streaming sites to scan (add more as needed)
 const STREAM_SOURCES = [
   // Soccer sites
   'https://sportsbay.org/',
@@ -11,16 +10,14 @@ const STREAM_SOURCES = [
   'https://www.totalsportek.com/',
   'https://www.espn.com/watch/',
   'https://www.fcstreams.xyz/',
-  // Cricket sites
-  'https://www.cricfree.live/',
-  'https://www.cricbuzz.com/',
-  'https://www.hotstar.com/',
-  'https://www.sonyliv.com/',
-  // Multi-sport
-  'https://www.stream2watch.ws/',
+  'https://sportsurge.ws/',
+  'https://stream2watch.ws/',
   'https://www.batmanstream.com/',
   'https://www.feed2all.eu/',
-  // Add more sites here
+  // Cricket sites
+  'https://www.cricbuzz.com/',
+  'https://www.hotstar.com/',
+  // Add more sites
 ];
 
 const SCAN_WORKER_URL = 'https://strimo-m3u8-detector.hsbdh7128.workers.dev';
@@ -33,18 +30,22 @@ class StreamScanner {
 
   async scanSite(url) {
     try {
-      const workerUrl = `${SCAN_WORKER_URL}?url=${encodeURIComponent(url)}`;
+      const workerUrl = `${SCAN_WORKER_URL}?action=m3u8&url=${encodeURIComponent(url)}`;
       const res = await fetch(workerUrl);
 
       if (!res.ok) return null;
 
       const data = await res.json();
-      return {
+
+      const streams = {
         source: url,
-        links: data.links || [],
-        count: data.links?.length || 0,
+        m3u8: data.links || [],
+        iframes: [],
+        external: [],
         timestamp: new Date()
       };
+
+      return streams;
     } catch (err) {
       console.error(`Error scanning ${url}:`, err);
       return null;
@@ -61,11 +62,10 @@ class StreamScanner {
       if (onProgress) onProgress(i + 1, STREAM_SOURCES.length, url);
 
       const result = await this.scanSite(url);
-      if (result && result.links.length > 0) {
+      if (result && (result.m3u8.length > 0 || result.iframes.length > 0)) {
         this.results.push(result);
       }
 
-      // Rate limiting - wait between scans
       await new Promise(r => setTimeout(r, 1000));
     }
 
@@ -73,30 +73,28 @@ class StreamScanner {
     return this.results;
   }
 
-  getM3u8Links() {
-    return this.results.flatMap(r => r.links);
+  getAllStreams() {
+    return {
+      m3u8: this.results.flatMap(r => r.m3u8),
+      iframes: this.results.flatMap(r => r.iframes),
+      external: this.results.flatMap(r => r.external)
+    };
   }
 }
 
-// Site-specific scanners (for sites that need special handling)
-const customScanners = {
-  // Add custom scanning logic for specific sites if needed
-};
+// Parse various stream types from a URL
+async function detectStreamType(url) {
+  try {
+    const workerUrl = `${SCAN_WORKER_URL}?action=detect&url=${encodeURIComponent(url)}`;
+    const res = await fetch(workerUrl);
+    const data = await res.json();
 
-// Auto-match finder - tries to find stream for a specific match
-async function findStreamForMatch(homeTeam, awayTeam) {
-  const scanner = new StreamScanner();
-  const allLinks = await scanner.scanAllSources();
-
-  // Simple matching - look for team names in link titles
-  const searchTerm = `${homeTeam} ${awayTeam}`.toLowerCase();
-
-  return allLinks.filter(link =>
-    link.toLowerCase().includes(homeTeam.toLowerCase()) ||
-    link.toLowerCase().includes(awayTeam.toLowerCase())
-  );
+    return data;
+  } catch (err) {
+    return { type: 'unknown', error: err.message };
+  }
 }
 
 // Export
 window.StreamScanner = StreamScanner;
-window.findStreamForMatch = findStreamForMatch;
+window.detectStreamType = detectStreamType;
