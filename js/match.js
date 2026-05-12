@@ -32,13 +32,20 @@ async function loadMatch() {
       .map(d => ({ id: d.id, ...d.data() }))
       .filter(s => s.isActive !== false); // Filter out inactive streams
 
-    console.log('Streams loaded:', allStreams);
+    console.log('Match status:', currentMatch.status, 'Streams:', allStreams.length);
     renderStreamSelector();
     loadRelatedMatches();
 
-    // Auto-load first stream if live
+    // Auto-load first stream if live and streams exist
+    console.log('Checking auto-play:', currentMatch.status, allStreams.length);
     if (currentMatch.status === 'live' && allStreams.length > 0) {
-      setTimeout(() => loadStream(allStreams[0]), 400);
+      console.log('Auto-playing first stream...');
+      setTimeout(() => {
+        loadStream(allStreams[0]);
+        // Also auto-click the button to show it's active
+        const firstBtn = document.getElementById(`streamBtn-${allStreams[0].id}`);
+        if (firstBtn) firstBtn.click();
+      }, 500);
     }
 
   } catch (err) {

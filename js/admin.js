@@ -212,7 +212,7 @@ function resetForm() {
     if (el) el.value = '';
   });
   document.getElementById('fSport').value = 'soccer';
-  document.getElementById('fStatus').value = 'upcoming';
+  document.getElementById('fStatus').value = 'live';  // Default to live for immediate playback
   document.getElementById('fFeatured').value = 'false';
   document.getElementById('streamListPreview').innerHTML = '';
   document.getElementById('detectorResults').classList.remove('visible');
