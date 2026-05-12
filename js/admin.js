@@ -4,37 +4,37 @@
 
 // Cloudflare Worker URL for m3u8 detection
 // Update this after deploying the worker
-const WORKER_URL = 'https://strimo-m3u8-detector.YOUR-SUBDOMAIN.workers.dev';
+const WORKER_URL = 'https://strimo-m3u8-detector.hsbdh7128.workers.dev';
 
-let currentUser      = null;
-let editingMatchId   = null;
-let pendingStreams    = [];   // streams queued before saving match
-let allAdminMatches  = [];
+let currentUser = null;
+let editingMatchId = null;
+let pendingStreams = [];   // streams queued before saving match
+let allAdminMatches = [];
 
 // ── Auth ─────────────────────────────────────────────────────
 auth.onAuthStateChanged(user => {
   if (user) {
     currentUser = user;
-    document.getElementById('loginScreen').style.display  = 'none';
-    document.getElementById('adminPanel').style.display   = 'flex';
-    const emailEl  = document.getElementById('adminEmail');
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('adminPanel').style.display = 'flex';
+    const emailEl = document.getElementById('adminEmail');
     const avatarEl = document.getElementById('adminAvatar');
-    if (emailEl)  emailEl.textContent  = user.email;
+    if (emailEl) emailEl.textContent = user.email;
     if (avatarEl) avatarEl.textContent = user.email[0].toUpperCase();
     loadDashboard();
     loadMatchTable();
   } else {
-    document.getElementById('loginScreen').style.display  = 'flex';
-    document.getElementById('adminPanel').style.display   = 'none';
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('adminPanel').style.display = 'none';
   }
 });
 
 // Login
 document.getElementById('loginBtn')?.addEventListener('click', async () => {
-  const email    = document.getElementById('loginEmail').value.trim();
+  const email = document.getElementById('loginEmail').value.trim();
   const password = document.getElementById('loginPassword').value;
-  const errEl    = document.getElementById('loginError');
-  const btn      = document.getElementById('loginBtn');
+  const errEl = document.getElementById('loginError');
+  const btn = document.getElementById('loginBtn');
 
   if (!email || !password) { showLoginError('Please enter email and password.'); return; }
 
@@ -73,7 +73,7 @@ function showPage(page) {
   if (navBtn) navBtn.classList.add('active');
 
   if (page === 'dashboard') loadDashboard();
-  if (page === 'matches')   loadMatchTable();
+  if (page === 'matches') loadMatchTable();
   if (page === 'add-match') resetForm();
 }
 
@@ -88,14 +88,14 @@ async function loadDashboard() {
     const matches = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     allAdminMatches = matches;
 
-    document.getElementById('statTotal').textContent    = matches.length;
-    document.getElementById('statLive').textContent     = matches.filter(m => m.status === 'live').length;
+    document.getElementById('statTotal').textContent = matches.length;
+    document.getElementById('statLive').textContent = matches.filter(m => m.status === 'live').length;
     document.getElementById('statUpcoming').textContent = matches.filter(m => m.status === 'upcoming').length;
 
     let totalStreams = 0;
     const recentList = document.getElementById('recentMatchesList');
 
-    const recent = matches.sort((a,b) => (tsToDate(b.createdAt)||0) - (tsToDate(a.createdAt)||0)).slice(0, 8);
+    const recent = matches.sort((a, b) => (tsToDate(b.createdAt) || 0) - (tsToDate(a.createdAt) || 0)).slice(0, 8);
     if (recentList) {
       recentList.innerHTML = recent.map(m => `
         <div style="display:flex;align-items:center;gap:var(--space-md);padding:10px 0;border-bottom:1px solid var(--border)">
@@ -109,7 +109,7 @@ async function loadDashboard() {
     }
 
     // Count streams
-    const streamsSnaps = await Promise.all(matches.slice(0,20).map(m =>
+    const streamsSnaps = await Promise.all(matches.slice(0, 20).map(m =>
       db.collection('matches').doc(m.id).collection('streams').get()
     ));
     totalStreams = streamsSnaps.reduce((a, s) => a + s.size, 0);
@@ -156,9 +156,9 @@ function renderMatchTable() {
         <td>
           <select style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:var(--radius-xs);padding:3px 6px;font-size:0.78rem;color:var(--text-primary);cursor:pointer"
             onchange="updateMatchStatus('${m.id}', this.value)">
-            <option ${m.status==='upcoming'?'selected':''} value="upcoming">Upcoming</option>
-            <option ${m.status==='live'?'selected':''} value="live">🔴 Live</option>
-            <option ${m.status==='completed'?'selected':''} value="completed">Completed</option>
+            <option ${m.status === 'upcoming' ? 'selected' : ''} value="upcoming">Upcoming</option>
+            <option ${m.status === 'live' ? 'selected' : ''} value="live">🔴 Live</option>
+            <option ${m.status === 'completed' ? 'selected' : ''} value="completed">Completed</option>
           </select>
         </td>
         <td>
@@ -204,14 +204,14 @@ async function deleteMatch(matchId) {
 // ── Add / Edit Match Form ─────────────────────────────────────
 function resetForm() {
   editingMatchId = null;
-  pendingStreams  = [];
+  pendingStreams = [];
   document.getElementById('matchFormTitle').textContent = 'Add Match';
-  ['fSport','fStatus','fHomeTeam','fAwayTeam','fLeague','fStartTime','fFeatured'].forEach(id => {
+  ['fSport', 'fStatus', 'fHomeTeam', 'fAwayTeam', 'fLeague', 'fStartTime', 'fFeatured'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
-  document.getElementById('fSport').value   = 'soccer';
-  document.getElementById('fStatus').value  = 'upcoming';
+  document.getElementById('fSport').value = 'soccer';
+  document.getElementById('fStatus').value = 'upcoming';
   document.getElementById('fFeatured').value = 'false';
   document.getElementById('streamListPreview').innerHTML = '';
   document.getElementById('detectorResults').classList.remove('visible');
@@ -225,22 +225,22 @@ async function editMatch(matchId) {
 
   try {
     const doc = await db.collection('matches').doc(matchId).get();
-    const m   = { id: doc.id, ...doc.data() };
-    document.getElementById('fSport').value    = m.sport || 'soccer';
-    document.getElementById('fStatus').value   = m.status || 'upcoming';
+    const m = { id: doc.id, ...doc.data() };
+    document.getElementById('fSport').value = m.sport || 'soccer';
+    document.getElementById('fStatus').value = m.status || 'upcoming';
     document.getElementById('fHomeTeam').value = m.homeTeam || '';
     document.getElementById('fAwayTeam').value = m.awayTeam || '';
-    document.getElementById('fLeague').value   = m.league || m.tournament || '';
+    document.getElementById('fLeague').value = m.league || m.tournament || '';
     document.getElementById('fFeatured').value = String(m.featured || false);
     if (m.startTime) {
       const d = tsToDate(m.startTime);
       const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
-      document.getElementById('fStartTime').value = local.toISOString().slice(0,16);
+      document.getElementById('fStartTime').value = local.toISOString().slice(0, 16);
     }
 
     // Load existing streams
     const streamsSnap = await db.collection('matches').doc(matchId).collection('streams')
-      .orderBy('order','asc').get();
+      .orderBy('order', 'asc').get();
     pendingStreams = streamsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
     renderStreamPreview();
 
@@ -248,13 +248,13 @@ async function editMatch(matchId) {
 }
 
 async function saveMatch() {
-  const sport     = document.getElementById('fSport').value;
-  const status    = document.getElementById('fStatus').value;
-  const homeTeam  = document.getElementById('fHomeTeam').value.trim();
-  const awayTeam  = document.getElementById('fAwayTeam').value.trim();
-  const league    = document.getElementById('fLeague').value.trim();
+  const sport = document.getElementById('fSport').value;
+  const status = document.getElementById('fStatus').value;
+  const homeTeam = document.getElementById('fHomeTeam').value.trim();
+  const awayTeam = document.getElementById('fAwayTeam').value.trim();
+  const league = document.getElementById('fLeague').value.trim();
   const startTime = document.getElementById('fStartTime').value;
-  const featured  = document.getElementById('fFeatured').value === 'true';
+  const featured = document.getElementById('fFeatured').value === 'true';
 
   if (!homeTeam || !awayTeam) { showToast('Home and Away team names are required.', 'error'); return; }
 
@@ -306,9 +306,9 @@ async function saveMatch() {
 
 // ── Stream List Builder ──────────────────────────────────────
 function addStreamToList() {
-  const label   = document.getElementById('sLabel').value.trim() || `Stream ${pendingStreams.length + 1}`;
-  const type    = document.getElementById('sType').value;
-  const url     = document.getElementById('sUrl').value.trim();
+  const label = document.getElementById('sLabel').value.trim() || `Stream ${pendingStreams.length + 1}`;
+  const type = document.getElementById('sType').value;
+  const url = document.getElementById('sUrl').value.trim();
   const quality = document.getElementById('sQuality').value;
 
   if (!url) { showToast('Please enter a stream URL.', 'error'); return; }
@@ -317,7 +317,7 @@ function addStreamToList() {
   renderStreamPreview();
 
   document.getElementById('sLabel').value = '';
-  document.getElementById('sUrl').value   = '';
+  document.getElementById('sUrl').value = '';
 }
 
 function removeStream(index) {
@@ -345,11 +345,11 @@ function renderStreamPreview() {
 
 // ── m3u8 Auto-Detector ───────────────────────────────────────
 async function detectM3u8() {
-  const urlInput     = document.getElementById('detectorUrl');
-  const btn          = document.getElementById('detectBtn');
-  const resultsEl    = document.getElementById('detectorResults');
-  const linksEl      = document.getElementById('detectorLinksList');
-  const targetUrl    = urlInput?.value.trim();
+  const urlInput = document.getElementById('detectorUrl');
+  const btn = document.getElementById('detectBtn');
+  const resultsEl = document.getElementById('detectorResults');
+  const linksEl = document.getElementById('detectorLinksList');
+  const targetUrl = urlInput?.value.trim();
 
   if (!targetUrl) { showToast('Please enter a URL to scan.', 'error'); return; }
   if (!targetUrl.startsWith('http')) { showToast('Please enter a valid URL starting with http.', 'error'); return; }
@@ -409,9 +409,9 @@ function useDetectedLink(encodedUrl) {
 
 // ── Stream Modal (per-match stream management) ────────────────
 async function openStreamModal(matchId, matchName) {
-  const modal   = document.getElementById('streamModal');
+  const modal = document.getElementById('streamModal');
   const content = document.getElementById('modalContent');
-  const title   = document.getElementById('modalTitle');
+  const title = document.getElementById('modalTitle');
   if (!modal || !content) return;
 
   if (title) title.textContent = `Streams: ${matchName}`;
@@ -420,7 +420,7 @@ async function openStreamModal(matchId, matchName) {
 
   try {
     const snap = await db.collection('matches').doc(matchId).collection('streams')
-      .orderBy('order','asc').get();
+      .orderBy('order', 'asc').get();
     const streams = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
     if (!streams.length) {
@@ -459,7 +459,7 @@ function closeModal() {
 }
 
 // Close modal on backdrop click
-document.getElementById('streamModal')?.addEventListener('click', function(e) {
+document.getElementById('streamModal')?.addEventListener('click', function (e) {
   if (e.target === this) closeModal();
 });
 
@@ -470,7 +470,7 @@ function showToast(msg, type = 'info') {
   const icons = { success: '✅', error: '❌', info: 'ℹ️' };
   const toast = document.createElement('div');
   toast.className = `toast ${type}`;
-  toast.innerHTML = `<span>${icons[type]||''}</span><span>${msg}</span>`;
+  toast.innerHTML = `<span>${icons[type] || ''}</span><span>${msg}</span>`;
   container.appendChild(toast);
-  setTimeout(() => { toast.style.opacity='0'; setTimeout(()=>toast.remove(),300); }, 3000);
+  setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3000);
 }
