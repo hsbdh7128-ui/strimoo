@@ -75,6 +75,7 @@ function showPage(page) {
   if (page === 'dashboard') loadDashboard();
   if (page === 'matches') loadMatchTable();
   if (page === 'add-match') resetForm();
+  if (page === 'auto-fetch') { /* No special load needed */ }
 }
 
 document.querySelectorAll('.admin-nav-item').forEach(btn => {

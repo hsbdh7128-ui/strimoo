@@ -53,6 +53,7 @@
         <button class="admin-nav-item active" data-page="dashboard"><span class="nav-icon">📊</span> Dashboard</button>
         <button class="admin-nav-item" data-page="matches"><span class="nav-icon">🏆</span> Matches</button>
         <button class="admin-nav-item" data-page="add-match"><span class="nav-icon">➕</span> Add Match</button>
+        <button class="admin-nav-item" data-page="auto-fetch"><span class="nav-icon">🤖</span> Auto-Fetch</button>
       </nav>
       <div class="admin-sidebar-footer">
         <div class="admin-user-info">
@@ -112,6 +113,43 @@
             </thead>
             <tbody id="matchTableBody"><tr><td colspan="7" style="text-align:center;padding:40px"><div class="spinner" style="margin:0 auto"></div></td></tr></tbody>
           </table>
+        </div>
+      </div>
+
+      <!-- Auto-Fetch Page -->
+      <div id="page-auto-fetch" class="admin-page" style="display:none">
+        <div class="admin-page-header">
+          <div><div class="admin-page-title">🤖 Auto-Fetch Matches</div><div class="admin-page-subtitle">Automatically fetch today's matches and scan for live streams</div></div>
+        </div>
+
+        <div class="admin-form" style="margin-bottom:var(--space-lg)">
+          <p style="color:var(--text-muted);margin-bottom:var(--space-md)">
+            This feature uses free sports APIs to get today's match schedule, then scans known streaming sites to automatically find and add matches with working stream links.
+          </p>
+
+          <button class="btn btn-primary btn-lg" id="autoScanBtn" onclick="autoCreateMatches()">
+            🔄 Auto-Fetch & Scan
+          </button>
+
+          <div id="autoScanResults" style="margin-top:var(--space-lg)"></div>
+        </div>
+
+        <div class="admin-form">
+          <h4>Or fetch matches only (no scanning)</h4>
+          <button class="btn btn-outline" onclick="autoFetchMatches()">
+            📅 Get Today's Matches
+          </button>
+          <div id="autoFetchResults" style="margin-top:var(--space-md)"></div>
+        </div>
+
+        <div style="margin-top:var(--space-xl);padding:15px;background:var(--bg-elevated);border-radius:var(--radius-md)">
+          <h4 style="color:var(--text-secondary)">How it works:</h4>
+          <ol style="color:var(--text-muted);padding-left:20px;line-height:1.8">
+            <li>Uses <strong>TheSportsDB</strong> free API to get today's match schedule</li>
+            <li>Scans streaming sites for available .m3u8 links</li>
+            <li>Matches team names with found streams</li>
+            <li>Auto-adds matches with streams to your Firestore database</li>
+          </ol>
         </div>
       </div>
 
@@ -254,6 +292,9 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="js/firebase-config.js"></script>
 <script src="js/utils.js"></script>
+<script src="js/match-fetcher.js"></script>
+<script src="js/auto-scanner.js"></script>
+<script src="js/auto-admin.js"></script>
 <script src="js/admin.js"></script>
 </body>
 </html>
