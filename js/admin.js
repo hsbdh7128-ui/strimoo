@@ -344,56 +344,69 @@ function renderStreamPreview() {
   `;
 }
 
-// ── m3u8 Auto-Detector ───────────────────────────────────────
-async function detectM3u8() {
+// ── Stream Detector (m3u8 + iframes + external) ─────────────────
+async function detectStream() {
   const urlInput = document.getElementById('detectorUrl');
   const btn = document.getElementById('detectBtn');
   const resultsEl = document.getElementById('detectorResults');
   const linksEl = document.getElementById('detectorLinksList');
   const targetUrl = urlInput?.value.trim();
 
-  if (!targetUrl) { showToast('Please enter a URL to scan.', 'error'); return; }
+  if (!targetUrl) { showToast('Please enter a URL.', 'error'); return; }
   if (!targetUrl.startsWith('http')) { showToast('Please enter a valid URL starting with http.', 'error'); return; }
 
   btn.disabled = true;
-  btn.textContent = 'Scanning...';
+  btn.textContent = 'Detecting...';
   if (resultsEl) resultsEl.classList.remove('visible');
 
   try {
-    const workerUrl = `${WORKER_URL}?url=${encodeURIComponent(targetUrl)}`;
+    // Use the detect endpoint to find stream type
+    const workerUrl = `${WORKER_URL}?action=detect&url=${encodeURIComponent(targetUrl)}`;
     const res = await fetch(workerUrl);
 
     if (!res.ok) throw new Error(`Worker returned ${res.status}`);
     const data = await res.json();
-    const links = data.links || [];
 
     if (resultsEl) resultsEl.classList.add('visible');
 
-    if (!links.length) {
-      if (linksEl) linksEl.innerHTML = '<p style="font-size:0.82rem;color:var(--text-muted)">No m3u8 links found on this page. Try a different URL or paste the m3u8 link manually.</p>';
+    // Add the stream based on detected type
+    if (data.m3u8 && data.m3u8.length > 0) {
+      // Found direct m3u8 - add as m3u8 type
+      addStreamDirect(data.m3u8[0], 'm3u8', 'HD');
+      if (linksEl) linksEl.innerHTML = `<p style="color:var(--accent-success)">✅ Added m3u8 stream!</p>`;
+      showToast('Added m3u8 stream!', 'success');
+    } else if (data.iframes && data.iframes.length > 0) {
+      // Found iframe - add as iframe type
+      addStreamDirect(data.iframes[0], 'iframe', 'HD');
+      if (linksEl) linksEl.innerHTML = `<p style="color:var(--accent-success)">✅ Added iframe embed!</p>`;
+      showToast('Added iframe stream!', 'success');
     } else {
-      if (linksEl) {
-        linksEl.innerHTML = links.map(link => `
-          <div class="detector-link-item">
-            <span class="detector-link-url">${link}</span>
-            <button class="btn btn-outline detector-link-use" onclick="useDetectedLink('${encodeURIComponent(link)}')">Use This</button>
-          </div>
-        `).join('');
-      }
-      showToast(`Found ${links.length} m3u8 link${links.length !== 1 ? 's' : ''}!`, 'success');
+      // No direct streams found - add as external link
+      addStreamDirect(targetUrl, 'external', 'HD');
+      if (linksEl) linksEl.innerHTML = `<p style="color:var(--accent-blue)">✅ Added as external link (opens in new tab)</p>`;
+      showToast('Added as external link!', 'success');
     }
+
+    // Clear the input
+    if (urlInput) urlInput.value = '';
+
   } catch (err) {
+    // If detection fails, add as external link anyway
+    addStreamDirect(targetUrl, 'external', 'HD');
     if (resultsEl) resultsEl.classList.add('visible');
-    if (linksEl) linksEl.innerHTML = `
-      <p style="font-size:0.82rem;color:var(--accent-live)">
-        ⚠️ Could not scan URL: ${err.message}<br><br>
-        <strong>Make sure the Cloudflare Worker is deployed.</strong> See README.md for setup instructions.
-        In the meantime, copy the m3u8 URL manually from browser DevTools (Network tab → filter by .m3u8).
-      </p>`;
+    if (linksEl) linksEl.innerHTML = `<p style="color:var(--accent-blue)">✅ Added as external link</p>`;
+    showToast('Added as external link', 'success');
   }
 
   btn.disabled = false;
-  btn.textContent = '🔍 Detect';
+  btn.textContent = '➕ Add Stream';
+}
+
+// Add stream directly to pending list
+function addStreamDirect(url, type, quality) {
+  const label = `Stream ${pendingStreams.length + 1}`;
+  pendingStreams.push({ label, type, url, quality });
+  renderStreamPreview();
 }
 
 function useDetectedLink(encodedUrl) {
