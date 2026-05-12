@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Watch Match — Strimo</title>
+  <meta name="description" content="Watch free live sports stream on Strimo." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>▶</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <!-- Video.js -->
+  <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/player.css" />
+</head>
+<body>
+
+<nav class="navbar"><div class="container">
+  <a href="index.html" class="nav-logo"><div class="nav-logo-icon">▶</div><span class="nav-logo-text">STRIMO</span></a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="index.html">🏠 Home</a></li>
+    <li><a href="soccer.html">⚽ Soccer</a></li>
+    <li><a href="cricket.html">🏏 Cricket</a></li>
+    <li><a href="schedule.html">📅 Schedule</a></li>
+    <li><a href="search.html">🔍 Search</a></li>
+    <li class="nav-live"><a href="soccer.html?filter=live"><span class="nav-live-dot"></span> LIVE</a></li>
+  </ul>
+  <button class="nav-toggle" id="navToggle"><span></span><span></span><span></span></button>
+</div></nav>
+
+<!-- Match Header -->
+<div class="match-page-header" id="matchHeader">
+  <div class="container">
+    <div class="match-page-breadcrumb" id="breadcrumb">
+      <a href="index.html">Home</a> <span>/</span>
+      <span id="breadcrumbSport">Sport</span> <span>/</span>
+      <span id="breadcrumbMatch">Match</span>
+    </div>
+    <div class="match-page-teams" id="matchTeams">
+      <div class="loading-state"><div class="spinner"></div></div>
+    </div>
+    <div class="match-page-meta" id="matchMeta"></div>
+  </div>
+</div>
+
+<!-- Ad: Pre-Player -->
+<div class="container">
+  <div class="ad-slot ad-leaderboard" id="adPrePlayer"></div>
+</div>
+
+<!-- Match Content -->
+<div class="match-page-content">
+  <div class="container">
+    <div class="match-page-layout">
+
+      <!-- Main: Player + Streams -->
+      <main>
+
+        <!-- Stream Status -->
+        <div class="stream-status loading" id="streamStatus">
+          <div class="spinner" style="width:18px;height:18px;border-width:2px"></div>
+          <span>Loading stream information...</span>
+        </div>
+
+        <!-- Player -->
+        <div class="player-section">
+          <div class="player-wrap" id="playerWrap">
+            <div class="player-placeholder" id="playerPlaceholder">
+              <div class="player-placeholder-icon">▶</div>
+              <p>Select a stream below to start watching</p>
+            </div>
+            <video id="strimoPlayer" class="video-js vjs-default-skin" controls preload="auto" style="display:none;width:100%;height:100%">
+              <p class="vjs-no-js">To view this video please enable JavaScript.</p>
+            </video>
+          </div>
+
+          <!-- CORS fallback notice -->
+          <div class="cors-notice" id="corsNotice">
+            <p>⚠️ This stream cannot play embedded due to browser security restrictions (CORS). Click below to open it directly in a new tab.</p>
+            <a href="#" class="btn btn-primary" id="corsOpenBtn" target="_blank" rel="noopener">Open Stream in New Tab ↗</a>
+          </div>
+
+          <!-- Report -->
+          <button class="report-link-btn" id="reportBtn">⚑ Report broken stream</button>
+        </div>
+
+        <!-- Stream Selector -->
+        <div class="stream-selector" id="streamSelector" style="display:none">
+          <div class="stream-selector-title">Available Streams</div>
+          <div class="stream-list" id="streamList"></div>
+        </div>
+
+        <!-- Ad: Mid Content -->
+        <div class="ad-slot ad-leaderboard" style="margin:var(--space-lg) 0"></div>
+
+        <!-- Disclaimer under player -->
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:var(--space-md);margin-top:var(--space-md)">
+          <p style="font-size:0.78rem;color:var(--text-muted);line-height:1.6">
+            ⚠️ <strong style="color:var(--text-secondary)">Disclaimer:</strong> Strimo does not host, upload, or stream any content. 
+            All streams are links to publicly available third-party content on the internet. 
+            All content is copyright of their respective owners. 
+            Users are responsible for ensuring compliance with local laws.
+            <a href="disclaimer.html" style="color:var(--accent-cyan)">Full Disclaimer</a>
+          </p>
+        </div>
+
+      </main>
+
+      <!-- Sidebar -->
+      <aside>
+        <div class="ad-slot ad-rectangle" style="margin-bottom:var(--space-lg)"></div>
+        <div class="sidebar-widget">
+          <h4>Related Matches</h4>
+          <div class="sidebar-match-list" id="relatedMatches">
+            <div class="loading-state" style="padding:var(--space-lg)"><div class="spinner"></div></div>
+          </div>
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</div>
+
+<footer class="footer"><div class="container">
+  <div class="footer-grid">
+    <div class="footer-brand"><a href="index.html" class="nav-logo"><div class="nav-logo-icon">▶</div><span class="nav-logo-text">STRIMO</span></a><p>We do not host or broadcast any content. All links are to publicly available third-party streams.</p></div>
+    <div class="footer-col"><h4>Sports</h4><ul><li><a href="soccer.html">⚽ Soccer</a></li><li><a href="cricket.html">🏏 Cricket</a></li></ul></div>
+    <div class="footer-col"><h4>Legal</h4><ul><li><a href="disclaimer.html">Disclaimer</a></li><li><a href="disclaimer.html#dmca">DMCA</a></li></ul></div>
+  </div>
+  <div class="footer-bottom"><p>© 2025 Strimo — Link Aggregator. All content copyright belongs to their respective owners.</p></div>
+</div></footer>
+<div class="ad-slot ad-footer"></div>
+
+<div class="disclaimer-bar" id="disclaimerBar"><div class="inner">
+  <span>⚠️</span>
+  <p>Strimo does not host or stream any content. All links are sourced from publicly available third-party websites. <a href="disclaimer.html">Read more.</a></p>
+  <button class="disclaimer-close" id="disclaimerClose">×</button>
+</div></div>
+
+<!-- Scripts -->
+<script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.7/dist/hls.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script src="js/firebase-config.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/match.js"></script>
+</body>
+</html>

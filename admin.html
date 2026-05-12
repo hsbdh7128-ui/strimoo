@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel — Strimo</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚙</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
+<body>
+
+<!-- ── LOGIN SCREEN ── -->
+<div id="loginScreen" class="admin-login-page">
+  <div class="admin-login-card">
+    <div class="admin-login-logo">
+      <a href="index.html" class="nav-logo" style="justify-content:center">
+        <div class="nav-logo-icon">▶</div>
+        <span class="nav-logo-text">STRIMO</span>
+      </a>
+      <p>Admin Panel</p>
+    </div>
+    <h2>Sign In</h2>
+    <div id="loginError" style="background:var(--accent-live-dim);border:1px solid rgba(255,45,45,0.3);border-radius:var(--radius-sm);padding:10px 14px;font-size:0.85rem;color:var(--accent-live);margin-bottom:var(--space-md);display:none"></div>
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <input type="email" class="form-input" id="loginEmail" placeholder="admin@example.com" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input type="password" class="form-input" id="loginPassword" placeholder="••••••••" />
+    </div>
+    <button class="btn btn-primary" style="width:100%" id="loginBtn">Sign In →</button>
+  </div>
+</div>
+
+<!-- ── ADMIN DASHBOARD ── -->
+<div id="adminPanel" style="display:none">
+  <div class="admin-layout">
+
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="admin-sidebar-logo">
+        <a href="index.html" class="nav-logo"><div class="nav-logo-icon">▶</div><span class="nav-logo-text">STRIMO</span></a>
+        <div class="admin-sidebar-badge" style="margin-top:6px">Admin</div>
+      </div>
+      <nav class="admin-nav">
+        <button class="admin-nav-item active" data-page="dashboard"><span class="nav-icon">📊</span> Dashboard</button>
+        <button class="admin-nav-item" data-page="matches"><span class="nav-icon">🏆</span> Matches</button>
+        <button class="admin-nav-item" data-page="add-match"><span class="nav-icon">➕</span> Add Match</button>
+      </nav>
+      <div class="admin-sidebar-footer">
+        <div class="admin-user-info">
+          <div class="admin-avatar" id="adminAvatar">A</div>
+          <div class="admin-user-email" id="adminEmail">admin</div>
+        </div>
+        <button class="btn btn-danger btn-sm" style="width:100%;margin-top:10px" id="logoutBtn">Sign Out</button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <div class="toast-container" id="toastContainer"></div>
+
+      <!-- Dashboard Page -->
+      <div id="page-dashboard" class="admin-page">
+        <div class="admin-page-header">
+          <div><div class="admin-page-title">Dashboard</div><div class="admin-page-subtitle">Overview of all matches and streams</div></div>
+          <button class="btn btn-primary" onclick="showPage('add-match')">➕ Add Match</button>
+        </div>
+        <div class="admin-stats-grid">
+          <div class="admin-stat-card"><div class="admin-stat-label">Total Matches</div><div class="admin-stat-value cyan" id="statTotal">—</div></div>
+          <div class="admin-stat-card"><div class="admin-stat-label">Live Now</div><div class="admin-stat-value live" id="statLive">—</div></div>
+          <div class="admin-stat-card"><div class="admin-stat-label">Upcoming</div><div class="admin-stat-value" id="statUpcoming">—</div></div>
+          <div class="admin-stat-card"><div class="admin-stat-label">Total Streams</div><div class="admin-stat-value green" id="statTotalStreams">—</div></div>
+        </div>
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-md);padding:var(--space-lg)">
+          <h3 style="font-family:var(--font-heading);font-size:1rem;margin-bottom:var(--space-md);text-transform:uppercase;letter-spacing:0.06em;color:var(--text-secondary)">Recent Matches</h3>
+          <div id="recentMatchesList"><div class="loading-state"><div class="spinner"></div></div></div>
+        </div>
+      </div>
+
+      <!-- Matches List Page -->
+      <div id="page-matches" class="admin-page" style="display:none">
+        <div class="admin-page-header">
+          <div><div class="admin-page-title">All Matches</div><div class="admin-page-subtitle">Manage stream links and match status</div></div>
+          <button class="btn btn-primary" onclick="showPage('add-match')">➕ Add Match</button>
+        </div>
+        <div style="display:flex;gap:var(--space-sm);margin-bottom:var(--space-lg)">
+          <button class="filter-tab active" data-status-filter="all" onclick="filterMatchList('all',this)">All</button>
+          <button class="filter-tab" data-status-filter="live" onclick="filterMatchList('live',this)">🔴 Live</button>
+          <button class="filter-tab" data-status-filter="upcoming" onclick="filterMatchList('upcoming',this)">Upcoming</button>
+          <button class="filter-tab" data-status-filter="completed" onclick="filterMatchList('completed',this)">Completed</button>
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Match</th>
+                <th>Sport</th>
+                <th>League</th>
+                <th>Date/Time</th>
+                <th>Status</th>
+                <th>Streams</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="matchTableBody"><tr><td colspan="7" style="text-align:center;padding:40px"><div class="spinner" style="margin:0 auto"></div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Add Match Page -->
+      <div id="page-add-match" class="admin-page" style="display:none">
+        <div class="admin-page-header">
+          <div><div class="admin-page-title" id="matchFormTitle">Add Match</div><div class="admin-page-subtitle">Create a new match and add stream links</div></div>
+          <button class="btn btn-ghost" onclick="showPage('matches')">← Back</button>
+        </div>
+
+        <div class="admin-form" id="matchForm">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Sport <span>*</span></label>
+              <select class="form-select" id="fSport">
+                <option value="soccer">⚽ Soccer</option>
+                <option value="cricket">🏏 Cricket</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Status <span>*</span></label>
+              <select class="form-select" id="fStatus">
+                <option value="upcoming">Upcoming</option>
+                <option value="live">🔴 Live</option>
+                <option value="completed">Completed</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Home Team <span>*</span></label>
+              <input type="text" class="form-input" id="fHomeTeam" placeholder="e.g. Manchester United" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Away Team <span>*</span></label>
+              <input type="text" class="form-input" id="fAwayTeam" placeholder="e.g. Real Madrid" />
+            </div>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">League / Tournament</label>
+              <input type="text" class="form-input" id="fLeague" placeholder="e.g. Champions League" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Date &amp; Time <span>*</span></label>
+              <input type="datetime-local" class="form-input" id="fStartTime" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Featured Match?</label>
+            <select class="form-select" id="fFeatured">
+              <option value="false">No</option>
+              <option value="true">Yes — Show in Hero</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Stream Manager -->
+        <div class="stream-manager">
+          <div class="stream-manager-title">Stream Links</div>
+
+          <!-- m3u8 Auto-Detector -->
+          <div class="detector-box">
+            <h4>🔍 Auto-Detect m3u8 from URL</h4>
+            <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:var(--space-sm)">
+              Paste a streaming page URL and we'll scan it for .m3u8 links using our Cloudflare Worker.
+            </p>
+            <div class="detector-input-row">
+              <input type="url" class="form-input" id="detectorUrl" placeholder="https://some-streaming-site.com/live-match" />
+              <button class="btn btn-outline" id="detectBtn" onclick="detectM3u8()">🔍 Detect</button>
+            </div>
+            <div id="detectorResults" class="detector-results">
+              <div class="detector-results-title">Found m3u8 Links:</div>
+              <div id="detectorLinksList"></div>
+            </div>
+          </div>
+
+          <!-- Manual Stream Add -->
+          <div class="admin-form" style="margin-top:var(--space-md)">
+            <h4 style="font-family:var(--font-heading);font-size:1rem;margin-bottom:var(--space-md);color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.06em">Add Stream Manually</h4>
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">Label</label>
+                <input type="text" class="form-input" id="sLabel" placeholder="e.g. HD Stream 1" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Type <span>*</span></label>
+                <select class="form-select" id="sType">
+                  <option value="m3u8">📡 m3u8 (HLS — plays in page)</option>
+                  <option value="iframe">🖥 Iframe Embed</option>
+                  <option value="external">↗ External Link (new tab)</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Stream URL <span>*</span></label>
+              <input type="url" class="form-input" id="sUrl" placeholder="https://..." />
+              <div class="form-hint">For m3u8: paste the .m3u8 URL directly. For iframe: paste the embed URL. For external: paste the page URL.</div>
+            </div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">Quality</label>
+                <select class="form-select" id="sQuality">
+                  <option value="hd">HD</option>
+                  <option value="sd">SD</option>
+                  <option value="unknown">Unknown</option>
+                </select>
+              </div>
+            </div>
+            <button class="btn btn-outline" onclick="addStreamToList()">+ Add to List</button>
+          </div>
+
+          <!-- Stream List Preview -->
+          <div id="streamListPreview" style="margin-top:var(--space-md)"></div>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn btn-primary btn-lg" id="saveMatchBtn" onclick="saveMatch()">💾 Save Match</button>
+          <button class="btn btn-ghost" onclick="resetForm()">Reset Form</button>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- Stream Detail Modal -->
+<div id="streamModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:var(--z-modal);display:none;align-items:center;justify-content:center;padding:var(--space-lg)">
+  <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-xl);padding:var(--space-xl);width:100%;max-width:600px;max-height:90vh;overflow-y:auto">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-lg)">
+      <h3 style="font-family:var(--font-heading);font-size:1.2rem" id="modalTitle">Manage Streams</h3>
+      <button onclick="closeModal()" style="color:var(--text-muted);font-size:1.4rem;background:none;border:none;cursor:pointer">×</button>
+    </div>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>

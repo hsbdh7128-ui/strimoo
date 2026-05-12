@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Live Soccer Streams — Strimo</title>
+  <meta name="description" content="Watch free live soccer streams. Premier League, La Liga, Champions League, Serie A and more on Strimo." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>▶</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/main.css" />
+</head>
+<body>
+
+<!-- Nav -->
+<nav class="navbar"><div class="container">
+  <a href="index.html" class="nav-logo"><div class="nav-logo-icon">▶</div><span class="nav-logo-text">STRIMO</span></a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="index.html">🏠 Home</a></li>
+    <li><a href="soccer.html">⚽ Soccer</a></li>
+    <li><a href="cricket.html">🏏 Cricket</a></li>
+    <li><a href="schedule.html">📅 Schedule</a></li>
+    <li><a href="search.html">🔍 Search</a></li>
+    <li class="nav-live"><a href="soccer.html?filter=live"><span class="nav-live-dot"></span> LIVE</a></li>
+  </ul>
+  <button class="nav-toggle" id="navToggle"><span></span><span></span><span></span></button>
+</div></nav>
+
+<!-- Sport Header -->
+<div class="sport-page-header" data-sport-icon="⚽">
+  <div class="container">
+    <div class="sport-page-title soccer">Soccer</div>
+    <div class="sport-page-subtitle">Free live soccer streams aggregated from public sources</div>
+  </div>
+</div>
+
+<!-- Ad: Leaderboard -->
+<div class="container">
+  <div class="ad-slot ad-leaderboard"></div>
+  <div class="ad-slot ad-mobile"></div>
+</div>
+
+<!-- Content -->
+<div class="sport-page-content">
+  <div class="container">
+
+    <!-- Filter Tabs -->
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--space-md);margin-bottom:var(--space-lg);">
+      <div class="filter-tabs" id="statusTabs">
+        <button class="filter-tab active" data-status="all">All</button>
+        <button class="filter-tab" data-status="live">🔴 Live</button>
+        <button class="filter-tab" data-status="upcoming">Upcoming</button>
+        <button class="filter-tab" data-status="completed">Completed</button>
+      </div>
+      <a href="search.html?sport=soccer" class="btn btn-ghost btn-sm">🔍 Search</a>
+    </div>
+
+    <!-- League Filters -->
+    <div class="league-filters" id="leagueFilters">
+      <button class="league-badge active" data-league="all">All Leagues</button>
+      <button class="league-badge" data-league="Premier League">🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League</button>
+      <button class="league-badge" data-league="La Liga">🇪🇸 La Liga</button>
+      <button class="league-badge" data-league="Champions League">⭐ UCL</button>
+      <button class="league-badge" data-league="Serie A">🇮🇹 Serie A</button>
+      <button class="league-badge" data-league="Bundesliga">🇩🇪 Bundesliga</button>
+      <button class="league-badge" data-league="Ligue 1">🇫🇷 Ligue 1</button>
+      <button class="league-badge" data-league="World Cup">🌍 World Cup</button>
+    </div>
+
+    <div class="sport-content-layout">
+      <main>
+        <div class="matches-grid" id="matchesGrid">
+          <!-- injected by soccer.js -->
+        </div>
+      </main>
+      <aside>
+        <div class="ad-slot ad-rectangle" style="margin-bottom:var(--space-lg)"></div>
+        <div class="sidebar-widget">
+          <h4>🔴 Live Right Now</h4>
+          <div class="sidebar-match-list" id="liveListSidebar"></div>
+        </div>
+      </aside>
+    </div>
+
+  </div>
+</div>
+
+<!-- Footer -->
+<footer class="footer"><div class="container">
+  <div class="footer-grid">
+    <div class="footer-brand"><a href="index.html" class="nav-logo"><div class="nav-logo-icon">▶</div><span class="nav-logo-text">STRIMO</span></a><p>We do not host or broadcast any content. All links are to publicly available third-party streams.</p></div>
+    <div class="footer-col"><h4>Sports</h4><ul><li><a href="soccer.html">⚽ Soccer</a></li><li><a href="cricket.html">🏏 Cricket</a></li><li><a href="schedule.html">📅 Schedule</a></li></ul></div>
+    <div class="footer-col"><h4>Legal</h4><ul><li><a href="disclaimer.html">Disclaimer</a></li><li><a href="disclaimer.html#dmca">DMCA</a></li></ul></div>
+  </div>
+  <div class="footer-bottom"><p>© 2025 Strimo — Link Aggregator</p><p>All content copyright belongs to their respective owners.</p></div>
+</div></footer>
+<div class="ad-slot ad-footer"></div>
+
+<!-- Disclaimer -->
+<div class="disclaimer-bar" id="disclaimerBar"><div class="inner">
+  <span>⚠️</span>
+  <p>Strimo does not host or stream any content. All links are sourced from publicly available third-party websites. <a href="disclaimer.html">Read more.</a></p>
+  <button class="disclaimer-close" id="disclaimerClose">×</button>
+</div></div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/soccer.js"></script>
+</body>
+</html>

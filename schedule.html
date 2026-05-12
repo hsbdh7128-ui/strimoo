@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Match Schedule — Strimo</title>
+  <meta name="description" content="Full schedule of live soccer and cricket streams on Strimo." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>▶</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/main.css" />
+</head>
+<body>
+
+<nav class="navbar"><div class="container">
+  <a href="index.html" class="nav-logo"><div class="nav-logo-icon">▶</div><span class="nav-logo-text">STRIMO</span></a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="index.html">🏠 Home</a></li>
+    <li><a href="soccer.html">⚽ Soccer</a></li>
+    <li><a href="cricket.html">🏏 Cricket</a></li>
+    <li><a href="schedule.html">📅 Schedule</a></li>
+    <li><a href="search.html">🔍 Search</a></li>
+    <li class="nav-live"><a href="soccer.html?filter=live"><span class="nav-live-dot"></span> LIVE</a></li>
+  </ul>
+  <button class="nav-toggle" id="navToggle"><span></span><span></span><span></span></button>
+</div></nav>
+
+<div class="schedule-page">
+  <div class="container">
+    <div class="schedule-header">
+      <h1>📅 Match Schedule</h1>
+      <p style="color:var(--text-muted);margin-top:6px">All times shown in your local timezone: <strong id="tzDisplay" style="color:var(--accent-cyan)"></strong></p>
+    </div>
+
+    <div class="container" style="padding:0;margin-bottom:var(--space-lg)">
+      <div class="ad-slot ad-leaderboard"></div>
+    </div>
+
+    <!-- Filters -->
+    <div style="display:flex;gap:var(--space-md);flex-wrap:wrap;margin-bottom:var(--space-xl)">
+      <div class="filter-tabs" id="sportFilter">
+        <button class="filter-tab active" data-sport="all">All Sports</button>
+        <button class="filter-tab" data-sport="soccer">⚽ Soccer</button>
+        <button class="filter-tab" data-sport="cricket">🏏 Cricket</button>
+      </div>
+      <div class="filter-tabs" id="statusFilter">
+        <button class="filter-tab active" data-status="all">All</button>
+        <button class="filter-tab" data-status="live">🔴 Live</button>
+        <button class="filter-tab" data-status="upcoming">Upcoming</button>
+      </div>
+    </div>
+
+    <!-- Schedule List -->
+    <div id="scheduleList">
+      <div class="loading-state"><div class="spinner"></div></div>
+    </div>
+
+    <div class="ad-slot ad-footer"></div>
+  </div>
+</div>
+
+<footer class="footer"><div class="container">
+  <div class="footer-grid">
+    <div class="footer-brand"><a href="index.html" class="nav-logo"><div class="nav-logo-icon">▶</div><span class="nav-logo-text">STRIMO</span></a><p>We do not host or broadcast any content.</p></div>
+    <div class="footer-col"><h4>Sports</h4><ul><li><a href="soccer.html">⚽ Soccer</a></li><li><a href="cricket.html">🏏 Cricket</a></li></ul></div>
+    <div class="footer-col"><h4>Legal</h4><ul><li><a href="disclaimer.html">Disclaimer</a></li></ul></div>
+  </div>
+  <div class="footer-bottom"><p>© 2025 Strimo — All content copyright belongs to their respective owners.</p></div>
+</div></footer>
+
+<div class="disclaimer-bar" id="disclaimerBar"><div class="inner">
+  <span>⚠️</span>
+  <p>Strimo does not host or stream any content. All links are sourced from publicly available third-party websites. <a href="disclaimer.html">Read more.</a></p>
+  <button class="disclaimer-close" id="disclaimerClose">×</button>
+</div></div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script src="js/firebase-config.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/schedule.js"></script>
+</body>
+</html>

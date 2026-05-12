@@ -1,0 +1,95 @@
+/* ============================================================
+   STRIMO — Design Tokens / CSS Variables
+   ============================================================ */
+
+:root {
+  /* Background */
+  --bg-primary:     #080c14;
+  --bg-card:        #0f1624;
+  --bg-elevated:    #151f33;
+  --bg-hover:       #1a2840;
+  --bg-overlay:     rgba(8, 12, 20, 0.92);
+  --bg-glass:       rgba(15, 22, 36, 0.7);
+
+  /* Accent Colors */
+  --accent-cyan:        #00c8ff;
+  --accent-cyan-dim:    rgba(0, 200, 255, 0.15);
+  --accent-cyan-glow:   rgba(0, 200, 255, 0.3);
+  --accent-live:        #ff2d2d;
+  --accent-live-dim:    rgba(255, 45, 45, 0.2);
+  --accent-green:       #00e676;
+  --accent-green-dim:   rgba(0, 230, 118, 0.15);
+  --accent-gold:        #ffc107;
+  --accent-gold-dim:    rgba(255, 193, 7, 0.15);
+  --accent-purple:      #7c3aed;
+  --accent-soccer:      #00c8ff;
+  --accent-cricket:     #ff9800;
+
+  /* Text */
+  --text-primary:   #e8eeff;
+  --text-secondary: #a0aec0;
+  --text-muted:     #5a6a8a;
+  --text-dim:       #3a4a60;
+
+  /* Borders */
+  --border:         #1a2640;
+  --border-hover:   #2a3d5a;
+  --border-accent:  rgba(0, 200, 255, 0.3);
+
+  /* Shadows */
+  --shadow-sm:      0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-card:    0 4px 24px rgba(0, 0, 0, 0.5);
+  --shadow-glow:    0 0 40px rgba(0, 200, 255, 0.12);
+  --shadow-live:    0 0 20px rgba(255, 45, 45, 0.3);
+  --shadow-up:      0 -4px 20px rgba(0, 200, 255, 0.08);
+
+  /* Gradients */
+  --gradient-hero:   linear-gradient(135deg, #080c14 0%, #0d1b38 50%, #080c14 100%);
+  --gradient-card:   linear-gradient(135deg, #0f1624 0%, #151f33 100%);
+  --gradient-cyan:   linear-gradient(135deg, #00c8ff 0%, #7c3aed 100%);
+  --gradient-live:   linear-gradient(135deg, #ff2d2d 0%, #ff6b35 100%);
+  --gradient-soccer: linear-gradient(135deg, #00c8ff 0%, #0066cc 100%);
+  --gradient-cricket:linear-gradient(135deg, #ff9800 0%, #e65100 100%);
+
+  /* Spacing */
+  --space-xs:   4px;
+  --space-sm:   8px;
+  --space-md:   16px;
+  --space-lg:   24px;
+  --space-xl:   40px;
+  --space-2xl:  64px;
+  --space-3xl:  96px;
+
+  /* Border Radius */
+  --radius-xs:   4px;
+  --radius-sm:   8px;
+  --radius-md:   12px;
+  --radius-lg:   20px;
+  --radius-xl:   28px;
+  --radius-full: 9999px;
+
+  /* Typography */
+  --font-heading: 'Rajdhani', sans-serif;
+  --font-body:    'Inter', sans-serif;
+  --font-mono:    'JetBrains Mono', monospace;
+
+  /* Transitions */
+  --transition-fast:   0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition:        0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow:   0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Z-Index */
+  --z-base:    1;
+  --z-card:    10;
+  --z-nav:     100;
+  --z-modal:   200;
+  --z-toast:   300;
+  --z-top:     400;
+
+  /* Nav */
+  --nav-height: 68px;
+
+  /* Container */
+  --container-max:  1400px;
+  --container-pad:  clamp(16px, 4vw, 48px);
+}

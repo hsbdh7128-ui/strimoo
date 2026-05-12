@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Strimo — Watch Live Soccer & Cricket Streams Free</title>
+  <meta name="description" content="Strimo aggregates free publicly available live soccer and cricket streams from around the web. Watch Premier League, La Liga, IPL, and more." />
+  <meta name="keywords" content="live soccer stream, live cricket stream, free sports stream, watch football online, IPL live, Premier League live" />
+  <meta property="og:title" content="Strimo — Free Live Sports Streams" />
+  <meta property="og:description" content="Watch live Soccer and Cricket streams aggregated from public sources." />
+  <meta property="og:type" content="website" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>▶</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/main.css" />
+</head>
+<body>
+
+<!-- ── Navigation ── -->
+<nav class="navbar" id="navbar">
+  <div class="container">
+    <a href="index.html" class="nav-logo">
+      <div class="nav-logo-icon">▶</div>
+      <span class="nav-logo-text">STRIMO</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="index.html">🏠 Home</a></li>
+      <li><a href="soccer.html">⚽ Soccer</a></li>
+      <li><a href="cricket.html">🏏 Cricket</a></li>
+      <li><a href="schedule.html">📅 Schedule</a></li>
+      <li><a href="search.html">🔍 Search</a></li>
+      <li class="nav-live"><a href="soccer.html?filter=live"><span class="nav-live-dot"></span> LIVE</a></li>
+    </ul>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- ── Hero Section ── -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid-overlay"></div>
+  <div class="container">
+    <div class="hero-content">
+      <div class="hero-eyebrow">
+        <span class="live-dot"></span>
+        Streams Live Now
+      </div>
+      <h1>Watch <span>Free Live</span><br>Sports Streams</h1>
+      <p class="hero-sub">Aggregating publicly available Soccer &amp; Cricket streams from around the web — all in one place.</p>
+      <div class="hero-actions">
+        <a href="soccer.html?filter=live" class="btn btn-primary btn-lg">⚽ Live Soccer</a>
+        <a href="cricket.html?filter=live" class="btn btn-ghost btn-lg">🏏 Live Cricket</a>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="hero-stat-value" id="statLive">0</div>
+          <div class="hero-stat-label">Live Now</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-value" id="statToday">0</div>
+          <div class="hero-stat-label">Today's Matches</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-value" id="statStreams">0</div>
+          <div class="hero-stat-label">Total Streams</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Ad: Leaderboard ── -->
+<div class="container">
+  <div class="ad-slot ad-leaderboard" id="ad-header">
+    <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="XXXXXXXXXX" data-ad-format="horizontal"></ins>
+  </div>
+  <div class="ad-slot ad-mobile" id="ad-header-mobile"></div>
+</div>
+
+<!-- ── Live Now Section ── -->
+<section class="live-section">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">
+        <span class="title-icon" style="color:var(--accent-live)">🔴</span>
+        Live Now
+      </h2>
+      <a href="soccer.html?filter=live" class="btn btn-outline btn-sm">View All Live</a>
+    </div>
+    <div class="live-grid" id="liveGrid">
+      <!-- injected by home.js -->
+    </div>
+  </div>
+</section>
+
+<!-- ── Sport Categories ── -->
+<section style="padding: var(--space-xl) 0;">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title"><span class="title-icon">🏆</span> Sports</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-md);max-width:600px;">
+      <a href="soccer.html" class="sport-card soccer">
+        <div class="sport-icon">⚽</div>
+        <div class="sport-name">Soccer</div>
+        <div class="sport-count" id="soccerCount">Loading matches...</div>
+      </a>
+      <a href="cricket.html" class="sport-card cricket">
+        <div class="sport-icon">🏏</div>
+        <div class="sport-name">Cricket</div>
+        <div class="sport-count" id="cricketCount">Loading matches...</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ── Soccer Matches ── -->
+<section class="matches-section">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title"><span class="title-icon">⚽</span> Soccer Today</h2>
+      <a href="soccer.html" class="btn btn-ghost btn-sm">All Soccer →</a>
+    </div>
+    <div class="matches-grid" id="soccerGrid">
+      <!-- injected by home.js -->
+    </div>
+  </div>
+</section>
+
+<!-- ── Ad: Rectangle ── -->
+<div class="container" style="display:flex;justify-content:center;margin:var(--space-lg) 0;">
+  <div class="ad-slot ad-rectangle" id="ad-mid"></div>
+</div>
+
+<!-- ── Cricket Matches ── -->
+<section class="matches-section">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title"><span class="title-icon">🏏</span> Cricket Today</h2>
+      <a href="cricket.html" class="btn btn-ghost btn-sm">All Cricket →</a>
+    </div>
+    <div class="matches-grid" id="cricketGrid">
+      <!-- injected by home.js -->
+    </div>
+  </div>
+</section>
+
+<!-- ── Upcoming ── -->
+<section class="matches-section">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title"><span class="title-icon">⏰</span> Upcoming</h2>
+      <a href="schedule.html" class="btn btn-ghost btn-sm">Full Schedule →</a>
+    </div>
+    <div class="matches-grid" id="upcomingGrid">
+      <!-- injected by home.js -->
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ── -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="index.html" class="nav-logo">
+          <div class="nav-logo-icon">▶</div>
+          <span class="nav-logo-text">STRIMO</span>
+        </a>
+        <p>Strimo is a free sports streaming aggregator. We do not host or broadcast any content. All links are to publicly available third-party streams on the internet.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Sports</h4>
+        <ul>
+          <li><a href="soccer.html">⚽ Soccer</a></li>
+          <li><a href="cricket.html">🏏 Cricket</a></li>
+          <li><a href="schedule.html">📅 Schedule</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="disclaimer.html">Disclaimer</a></li>
+          <li><a href="disclaimer.html#dmca">DMCA</a></li>
+          <li><a href="disclaimer.html#terms">Terms of Use</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 Strimo. A link aggregator — we do not stream or host any content.</p>
+      <p>All content copyright belongs to their respective owners.</p>
+    </div>
+  </div>
+</footer>
+
+<!-- ── Ad: Footer ── -->
+<div class="container">
+  <div class="ad-slot ad-footer" id="ad-footer"></div>
+</div>
+
+<!-- ── Disclaimer Bar ── -->
+<div class="disclaimer-bar" id="disclaimerBar">
+  <div class="inner">
+    <span>⚠️</span>
+    <p>Strimo does not host or stream any content. All streaming links are sourced from publicly available third-party websites. All content is copyright of their respective owners. <a href="disclaimer.html">Read our disclaimer.</a></p>
+    <button class="disclaimer-close" id="disclaimerClose" aria-label="Close">×</button>
+  </div>
+</div>
+
+<!-- ── Firebase + Scripts ── -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/home.js"></script>
+</body>
+</html>
