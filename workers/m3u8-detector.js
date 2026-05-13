@@ -35,6 +35,8 @@ async function handleRequest(request) {
     return handleM3u8Request(request);
   } else if (action === 'detect') {
     return handleDetectRequest(request);
+  } else if (action === 'proxy') {
+    return handleCorsProxy(request);
   }
 
   // Default: m3u8 detector
@@ -349,4 +351,41 @@ function jsonResponse(data, status = 200) {
       'Cache-Control': 'no-store',
     }
   });
+}
+
+// ── CORS Proxy for m3u8 Streams ────────────────────────────────
+async function handleCorsProxy(request) {
+  const url = new URL(request.url);
+  const streamUrl = url.searchParams.get('url');
+
+  if (!streamUrl) {
+    return new Response('Missing url parameter', { status: 400 });
+  }
+
+  try {
+    // Fetch the stream (could be m3u8 or ts segment)
+    const res = await fetch(streamUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36',
+        'Referer': new URL(streamUrl).origin,
+      }
+    });
+
+    const content = await res.arrayBuffer();
+    const contentType = res.headers.get('content-type') || 'application/octet-stream';
+
+    // Return with CORS headers
+    return new Response(content, {
+      status: res.status,
+      headers: {
+        'Content-Type': contentType,
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
+        'Access-Control-Allow-Headers': 'Range, Content-Type',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+      }
+    });
+  } catch (err) {
+    return new Response('Proxy error: ' + err.message, { status: 500 });
+  }
 }

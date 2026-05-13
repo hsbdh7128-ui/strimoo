@@ -160,11 +160,16 @@ function loadStream(stream) {
 }
 
 // ── HLS.js m3u8 Playback ─────────────────────────────────────
+const CORS_PROXY = 'https://strimo-m3u8-detector.hsbdh7128.workers.dev?action=proxy&url=';
+
 function playM3u8(url) {
   const placeholder = document.getElementById('playerPlaceholder');
   const videoEl     = document.getElementById('strimoPlayer');
   const corsNotice  = document.getElementById('corsNotice');
   const corsOpenBtn = document.getElementById('corsOpenBtn');
+
+  // Route through CORS proxy to bypass browser restrictions
+  const proxiedUrl = CORS_PROXY + encodeURIComponent(url);
 
   if (placeholder) placeholder.style.display = 'none';
   if (corsNotice)  corsNotice.classList.remove('visible');
@@ -207,7 +212,7 @@ function playM3u8(url) {
       newVideo.play().catch(() => {});
     });
 
-    hls.loadSource(url);
+    hls.loadSource(proxiedUrl);
     hls.attachMedia(newVideo);
     hlsInstance = hls;
 
@@ -221,9 +226,9 @@ function playM3u8(url) {
 
   } else if (newVideo.canPlayType('application/vnd.apple.mpegurl')) {
     // Safari native HLS
-    newVideo.src = url;
+    newVideo.src = proxiedUrl;
     newVideo.play().catch(() => {});
-    setStreamStatus('ready', 'Stream connected (native HLS)');
+    setStreamStatus('ready', 'Stream connected (via CORS proxy)');
   } else {
     handleStreamError(url);
   }
