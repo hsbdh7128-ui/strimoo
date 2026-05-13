@@ -160,7 +160,17 @@ function loadStream(stream) {
 }
 
 // ── HLS.js m3u8 Playback ─────────────────────────────────────
-const CORS_PROXY = 'https://strimo-m3u8-detector.hsbdh7128.workers.dev?action=proxy&url=';
+// Use multiple CORS proxies for better reliability
+const CORS_PROXIES = [
+  'https://strimo-m3u8-detector.hsbdh7128.workers.dev?action=proxy&url=',
+  'https://corsproxy.io/?',
+  'https://api.allorigins.win/raw?url='
+];
+
+function getProxiedUrl(url) {
+  // Try our worker first, then fallbacks
+  return CORS_PROXIES[0] + encodeURIComponent(url);
+}
 
 function playM3u8(url) {
   const placeholder = document.getElementById('playerPlaceholder');
@@ -169,7 +179,7 @@ function playM3u8(url) {
   const corsOpenBtn = document.getElementById('corsOpenBtn');
 
   // Route through CORS proxy to bypass browser restrictions
-  const proxiedUrl = CORS_PROXY + encodeURIComponent(url);
+  const proxiedUrl = getProxiedUrl(url);
 
   if (placeholder) placeholder.style.display = 'none';
   if (corsNotice)  corsNotice.classList.remove('visible');
@@ -282,19 +292,50 @@ function playIframe(url) {
 
 // ── CORS / Error Fallback ────────────────────────────────────
 function handleStreamError(url) {
-  setStreamStatus('cors-error', '⚠️ Stream blocked by browser security (CORS). Open in new tab instead.');
-  const corsNotice  = document.getElementById('corsNotice');
-  const corsOpenBtn = document.getElementById('corsOpenBtn');
-  if (corsNotice)  corsNotice.classList.add('visible');
-  if (corsOpenBtn) corsOpenBtn.href = url;
+  setStreamStatus('cors-error', '⚠️ Stream blocked. Trying alternative method...');
 
+  // Try playing directly without proxy (some servers allow this)
+  const wrap = document.getElementById('playerWrap');
   const placeholder = document.getElementById('playerPlaceholder');
-  if (placeholder) {
-    placeholder.style.display = 'flex';
-    placeholder.innerHTML = `
-      <div class="player-placeholder-icon">⚠️</div>
-      <p style="color:var(--accent-gold)">Stream blocked. Use "Open in New Tab" below.</p>
+  const videoEl = document.getElementById('strimoPlayer');
+
+  if (placeholder) placeholder.style.display = 'none';
+  if (videoEl) videoEl.style.display = 'block';
+
+  // Try with direct URL as last resort
+  const newVideo = document.createElement('video');
+  newVideo.id = 'strimoPlayerDirect';
+  newVideo.className = 'video-js vjs-default-skin';
+  newVideo.controls = true;
+  newVideo.style.cssText = 'width:100%;height:100%';
+  newVideo.crossOrigin = 'anonymous';
+  newVideo.src = url;
+
+  newVideo.onerror = function() {
+    // Final fallback - show options
+    wrap.innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:#fff;text-align:center;padding:40px;background:#0f0f1a">
+        <div style="font-size:3rem;margin-bottom:20px">🔒</div>
+        <h3 style="margin-bottom:15px">Stream Protected</h3>
+        <p style="color:#888;margin-bottom:20px;max-width:400px">This stream server doesn't allow embedding. This is a server security setting we cannot bypass.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+          <a href="${url}" target="_blank" style="background:#e94560;color:#fff;padding:15px 30px;border-radius:8px;text-decoration:none;font-weight:600">↗ Watch in New Tab</a>
+          <button onclick="location.reload()" style="background:#333;color:#fff;padding:15px 30px;border-radius:8px;border:none;cursor:pointer">Try Again</button>
+        </div>
+      </div>
     `;
+    setStreamStatus('cors-error', 'Cannot embed - use "Watch in New Tab"');
+  };
+
+  newVideo.oncanplay = function() {
+    setStreamStatus('ready', 'Stream playing!');
+    newVideo.play().catch(() => {});
+  };
+
+  // Clear and add
+  if (wrap) {
+    wrap.querySelectorAll('video').forEach(v => v.remove());
+    wrap.appendChild(newVideo);
   }
 }
 
