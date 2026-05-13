@@ -363,7 +363,6 @@ async function handleCorsProxy(request) {
   }
 
   try {
-    // Fetch the stream (could be m3u8 or ts segment)
     const res = await fetch(streamUrl, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36',
@@ -374,7 +373,6 @@ async function handleCorsProxy(request) {
     const content = await res.arrayBuffer();
     const contentType = res.headers.get('content-type') || 'application/octet-stream';
 
-    // Return with CORS headers
     return new Response(content, {
       status: res.status,
       headers: {
