@@ -232,24 +232,47 @@ function playM3u8(url) {
 // ── Iframe Embed Playback ────────────────────────────────────
 function playIframe(url) {
   const wrap = document.getElementById('playerWrap');
+  const placeholder = document.getElementById('playerPlaceholder');
+  const videoEl = document.getElementById('strimoPlayer');
+
   if (!wrap) return;
 
-  const placeholder = document.getElementById('playerPlaceholder');
+  // Hide other elements
   if (placeholder) placeholder.style.display = 'none';
+  if (videoEl) videoEl.style.display = 'none';
 
+  // Destroy HLS if running
   if (hlsInstance) { hlsInstance.destroy(); hlsInstance = null; }
 
-  wrap.innerHTML = `
-    <iframe
-      src="${url}"
-      frameborder="0"
-      allowfullscreen
-      allow="autoplay; fullscreen"
-      style="width:100%;height:100%;position:absolute;inset:0"
-      scrolling="no">
-    </iframe>
-  `;
-  setStreamStatus('ready', 'Embedded stream loaded');
+  // Clear and add iframe
+  wrap.innerHTML = '';
+
+  const iframe = document.createElement('iframe');
+  iframe.src = url;
+  iframe.frameBorder = '0';
+  iframe.allowFullscreen = true;
+  iframe.allow = 'autoplay; fullscreen; encrypted-media';
+  iframe.style.cssText = 'width:100%;height:100%;position:absolute;inset:0;border:none';
+  iframe.scrolling = 'no';
+
+  // Handle iframe load errors
+  iframe.onload = function() {
+    setStreamStatus('ready', 'Embedded stream loaded');
+  };
+
+  iframe.onerror = function() {
+    setStreamStatus('error', 'Stream may be blocked. Try opening in new tab.');
+    // Fallback: offer to open externally
+    wrap.innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:#fff;text-align:center;padding:20px">
+        <p style="margin-bottom:15px">This stream cannot be embedded directly.</p>
+        <a href="${url}" target="_blank" style="background:#e94560;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none">Open in New Tab</a>
+      </div>
+    `;
+  };
+
+  wrap.appendChild(iframe);
+  setStreamStatus('loading', 'Loading embedded stream...');
 }
 
 // ── CORS / Error Fallback ────────────────────────────────────
